@@ -3,7 +3,7 @@
  */
 
 #undef TLS_USE
-#define MQTT_CRED
+#undef MQTT_CRED
 
 // SPIFFS
 #include <SPIFFS.h>
@@ -20,7 +20,7 @@
 #include "classic_setup.h"
 // MQTT https://pubsubclient.knolleary.net/
 #include <PubSubClient.h>
-
+#include "json.h"
 
 /*===== ESP GPIO configuration ==============*/
 /* ---- LED         ----*/
@@ -45,7 +45,7 @@ WiFiClient espClient;                // Use Wifi as link layer
 #endif
 
 /*===== MQTT broker/server and TOPICS ========*/
-//String MQTT_SERVER = "192.168.1.101";
+//String MQTT_SERVER = "192.168.1.43";
 String MQTT_SERVER = "test.mosquitto.org";
 
 #ifdef TLS_USE
@@ -60,13 +60,14 @@ char *mqtt_id     = "deathstar";
 char *mqtt_login  = "darkvador";
 char *mqtt_passwd = "6poD2R2";
 #else
-char *mqtt_id     = "deathstar";
+char *mqtt_id     = "geoffrey";
 char *mqtt_login  = NULL;
 char *mqtt_passwd = NULL;
 #endif
 
 //==== MQTT TOPICS ==============
-#define TOPIC_TEMP "sensors/temp"
+#define TOPIC "iot/M1Miage2022"
+//#define TOPIC "wgr/temp"
 #define TOPIC_LED "sensors/led"
 #define TOPIC_LIGHT "sensors/light"
 
@@ -221,11 +222,11 @@ void setup () {
 
 void loop () {
   static uint32_t tick = 0;
-  char data[100];
+  char data[500];
   String payload; // Payload : "JSON ready" 
   int32_t period = 6 * 1000l; // Publication period
 
-  
+  int light =get_light();
   if ( millis() - tick < period)
   {
     goto END;
@@ -234,23 +235,29 @@ void loop () {
   Serial.println("End of stand by period");
   tick = millis();
 
-  /*------ Publish Temperature periodically ---*/
+  /*------ Publish Temperature periodically ---
   payload = "{\"who\": \"";
   payload += whoami;   
   payload += "\", \"value\": " ;
   payload += get_temperature(); 
+  payload += "\", \"localisation\": " ;
+  payload += get_temperature(); 
   payload += "}";
   payload.toCharArray(data, (payload.length() + 1)); // Convert String payload to a char array
+  */
 
+  
+  payload = getJSONString_fromstatus(get_temperature(),light);
+  payload.toCharArray(data, (payload.length() + 1));
   Serial.println(data);
-  client.publish(TOPIC_TEMP, data);  // publish it 
+  client.publish(TOPIC, data);  // publish it 
 
-  /*------ Publish Light periodically ---------*/
+  /*------ Publish Light periodically ---------
   payload = "{\"who\": \"" + whoami + "\", \"value\": " + get_light() + "}";
   payload.toCharArray(data, (payload.length() + 1));
 
   Serial.println(data);
-  client.publish(TOPIC_LIGHT, data); // publish it 
+  client.publish(TOPIC_LIGHT, data); // publish it */
   
 END :  
   // Process MQTT ... obligatoire une fois par loop()

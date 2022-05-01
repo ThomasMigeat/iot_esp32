@@ -45,8 +45,11 @@ void connect_wifi(){
  delay(100); // ms
 
  Serial.println(String("\nAttempting to connect to SSIDs : "));
+ wifiMulti.addAP("wajdi", "123456789");
+  wifiMulti.addAP("lalic", "lalicfamily");
+  wifiMulti.addAP("SFR_9D20", "qtkm4ufp52prgd2qxy79");
  wifiMulti.addAP("Livebox-B870", "MYCNcZqnvsWsiy7s52");
- wifiMulti.addAP("HUAWEI-6EC2", "FGY9MLBL");
+ //wifiMulti.addAP("HUAWEI-6EC2", "FGY9MLBL");
  wifiMulti.addAP("HUAWEI-553A", "QTM06RTT");
  wifiMulti.addAP("GMAP", "vijx47050");
  while(wifiMulti.run() != WL_CONNECTED) {
